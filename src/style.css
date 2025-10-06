@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Prevent body scroll */
+            background-color: #f8f9fa; /* Match Bootstrap body bg */
+        }
+        
+        /* Custom Colors to match Tailwind's Indigo look */
+        :root {
+            --indigo: #4F46E5; /* primary-blue equivalent */
+            --chat-bg: #F7F9FB; /* chat-bg equivalent */
+            --lg-radius: 0.75rem;
+        }
+        .bg-indigo { background-color: var(--indigo) !important; }
+        .text-indigo { color: var(--indigo) !important; }
+        .bg-chat-bg { background-color: var(--chat-bg) !important; }
+        .rounded-lg { border-radius: var(--lg-radius) !important; }
+        .rounded-t-0 { border-top-left-radius: 0 !important; }
+        .rounded-b-0 { border-bottom-right-radius: 0 !important; }
+        .shadow-custom { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06); }
+
+        /* Custom scrollbar styles */
+        #user-list::-webkit-scrollbar, #chat-box::-webkit-scrollbar { width: 8px; }
+        #user-list::-webkit-scrollbar-thumb, #chat-box::-webkit-scrollbar-thumb {
+            background-color: #adb5bd; /* gray */
+            border-radius: 4px;
+        }
+        #user-list::-webkit-scrollbar-track, #chat-box::-webkit-scrollbar-track {
+            background: #e9ecef; /* light gray */
+        }
+        #user-list, #chat-box { overflow-y: auto; }
+
+        /* Custom spinner for call modals */
+        .spinner-border.text-indigo {
+            border-color: var(--indigo);
+            border-right-color: transparent;
+        }
