@@ -22,56 +22,65 @@
         </div>
 
         <div class="col-9 d-flex flex-column bg-chat-bg p-0">
+            <div id="defaultChatMessageBox" class="h-100">
+                <div class="d-flex flex-column justify-content-center align-items-center h-100">
+                    <h1 class="text-muted">Welcome to our chat</h1>
+                    <p class="text-muted">Select a conversation to start chatting.</p>
+                </div>
+            </div>
+            <div id="visible-main-chat-wrapper" class="d-none">
+                <div class="d-flex flex-column h-100" >
+                    <div class="p-3 bg-white border-bottom shadow-sm sticky-top" style="z-index: 1000;">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-3">
+                                <img src="https://placehold.co/40x40/4F46E5/ffffff?text=U1" alt="Recipient" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                <div>
+                                    <h5 class="h6 mb-0 font-weight-semibold text-dark" id="chat-recipient">Alex Johnson</h5>
+                                    <span id="status-badge" class="badge badge-success font-weight-normal">Active now</span>
+                                </div>
+                            </div>
 
-          <!-- Sticky Header (Recipient Info and Call Buttons) -->
-            <div class="p-3 bg-white border-bottom shadow-sm sticky-top" style="z-index: 1000;">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center gap-3">
-                        <!-- Recipient Avatar -->
-                        <img src="https://placehold.co/40x40/4F46E5/ffffff?text=U1" alt="Recipient" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
-                        <div>
-                            <h5 class="h6 mb-0 font-weight-semibold text-dark" id="chat-recipient">Alex Johnson</h5>
-                            <span id="status-badge" class="badge badge-success font-weight-normal">Active now</span>
+                            <div class="d-flex" style="gap: 8px;">
+                                <button id="audioCallBtn" class="btn btn-light rounded-circle p-2 shadow-sm text-indigo border-0" aria-label="Start Audio Call" style="width: 40px; height: 40px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6.71-6.71 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.09 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                </button>
+                                <button id="videoCallBtn" class="btn bg-indigo rounded-circle p-2 shadow-custom text-white border-0" aria-label="Start Video Call" style="width: 40px; height: 40px;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l4.5 3V4l-4.5 3"/><rect x="3" y="5" width="12" height="14" rx="2" ry="2"/></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Audio and Video Call Action Buttons -->
-                    <div class="d-flex" style="gap: 8px;">
-                        <!-- Audio Call Button (Traditional Phone Icon) -->
-                        <button id="audioCallBtn" class="btn btn-light rounded-circle p-2 shadow-sm text-indigo border-0" aria-label="Start Audio Call" style="width: 40px; height: 40px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6.71-6.71 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.09 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                        </button>
-                        <!-- Video Call Button (Traditional Camera Icon) -->
-                        <button id="videoCallBtn" class="btn bg-indigo rounded-circle p-2 shadow-custom text-white border-0" aria-label="Start Video Call" style="width: 40px; height: 40px;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 17l4.5 3V4l-4.5 3"/><rect x="3" y="5" width="12" height="14" rx="2" ry="2"/></svg>
-                        </button>
+                    <div id="chat-box" class="flex-grow-1 p-4 vh-100" style="overflow-y: auto;">
+                        <div class="d-flex flex-column space-y-4">
+                            <div style="height: 50px;"></div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 bg-white border-top shadow-sm">
+                        <form  id="sendBtn">
+                            <div class="d-flex align-items-center">
+                                <button class="btn btn-light rounded-circle p-2 text-secondary border-0 mr-2" aria-label="Attach File">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19"/></svg>
+                                </button>
+
+                                <input id="msgInput" type="text"
+                                    class="form-control form-control-lg rounded-pill border-secondary flex-grow-1"
+                                    placeholder="Type your message here..."
+                                    style="box-shadow: none;">
+
+                                <button  type="submit"
+                                    class="btn bg-indigo text-white font-weight-semibold rounded-pill px-4 py-2 ml-2 shadow-custom border-0">
+                                    Send
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-            </div>
-
-            <div id="chat-box" class="flex-grow-1 p-4" style="overflow-y: auto;">
-                <div class="d-flex flex-column space-y-4">
-                    <div style="height: 50px;"></div>
-                </div>
-            </div>
-
-            <div class="p-3 bg-white border-top shadow-sm">
-                <div class="d-flex align-items-center">
-                    <button class="btn btn-light rounded-circle p-2 text-secondary border-0 mr-2" aria-label="Attach File">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19"/></svg>
-                    </button>
-
-                    <input id="msgInput" type="text"
-                        class="form-control form-control-lg rounded-pill border-secondary flex-grow-1"
-                        placeholder="Type your message here..."
-                        style="box-shadow: none;">
-
-                    <button id="sendBtn"
-                        class="btn bg-indigo text-white font-weight-semibold rounded-pill px-4 py-2 ml-2 shadow-custom border-0">
-                        Send
-                    </button>
-                </div>
-            </div>
+            </div>  
+            
+            
+            
         </div>
     </div>
 
@@ -124,13 +133,15 @@
                     <p class="h4 font-weight-bold mb-1" id="callerNameIncoming">Jane Smith</p>
                     <p class="text-white mb-5">Ringing...</p>
 
+                    <div id="remote-container"></div>
+                    <div id="local-container"></div>
+                    <div id="status"></div>
+
                     <div class="d-flex justify-content-center" style="gap: 1.5rem;">
-                        <button type="button" class="btn btn-danger rounded-circle p-3 shadow-lg" data-dismiss="modal" style="width: 60px; height: 60px;" aria-label="Decline">
-                            <!-- Decline Icon (Phone Off, rotated) -->
+                        <button type="button"  id="callDeclineButton" class="btn btn-danger rounded-circle p-3 shadow-lg" data-dismiss="modal" style="width: 60px; height: 60px;" aria-label="Decline">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(135deg);"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6.71-6.71 19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.09 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                         </button>
-                        <button type="button" class="btn btn-success rounded-circle p-3 shadow-lg" onclick="$('#incomingCallModal').modal('hide'); console.log('Call Answered!');" style="width: 60px; height: 60px;" aria-label="Answer">
-                            <!-- Answer Icon (Phone Call) -->
+                        <button type="button" class="btn btn-success rounded-circle p-3 shadow-lg" id="callAcceptButton" style="width: 60px; height: 60px;" aria-label="Answer">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.05 5a5 5 0 0 1 5 5"/><path d="M15.05 1a9 9 0 0 1 9 9"/><path d="M4 16h8"/><path d="M11 20L4 13 4 5C4 3.34315 5.34315 2 7 2h10c1.65685 0 3 1.34315 3 3v8l-7 7"/></svg>
                         </button>
                     </div>
