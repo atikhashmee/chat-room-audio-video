@@ -4,8 +4,8 @@ import "bootstrap";
 import "./style.css";
 import $ from 'jquery'; 
 
-import { sendBtn, msgInput, chatRecipientElement, audioCallBtn, videoCallBtn,
-     chatBox, incomingRingtone, outgoingRingtone, incomingModalElement, outgoingModalElement,
+import { sendBtn, audioCallBtn, videoCallBtn,
+    incomingModalElement,
     
     callAcceptButton,
     callDeclineButton,
@@ -15,9 +15,8 @@ import { sendBtn, msgInput, chatRecipientElement, audioCallBtn, videoCallBtn,
     } from "./DomElements";
 
 import { Conversation } from "./Conversation";
-import { Users } from "./Users";
 import { User } from "./User";
-import { renderUser, setUserCollection, setLocalUser, getLocalUser, addUser, getUserCollection, getActiveRecipient } from "./RenderUser";
+import { renderUser, setLocalUser, getLocalUser, addUser, getUserCollection, getActiveRecipient } from "./RenderUser";
 import { showOutgoingCall, simulateIncomingCall } from "./Helpers";
 import { ChatMessage } from "./ChatMessage";
 import { renderMessages } from "./RenderMessages";
@@ -28,11 +27,13 @@ import ManageCookies from "./ManageCookies";
     const [userName, email] = await handleCookie();
     let apiKey = "apzkey:b5f0036b112dcb3f6284a490b6361968"; 
     let cloudUrl =  "https://cloud.apizee.com";
+    // @ts-ignore
     let userAgent = new apiRTC.UserAgent({
         uri: apiKey
     });
 
 
+    // @ts-ignore
     const userData = new apiRTC.UserData()
     userData.setProp("name", userName)
     userData.setProp("email", email)
@@ -48,7 +49,7 @@ import ManageCookies from "./ManageCookies";
     let localUser = new User((connectedSession.getId() as string), connectedSession.getUserData().name, connectedSession.getUsername(), email)
     setLocalUser(localUser)
 
-    connectedSession.on('contactListUpdate', function(newJoineed : any) {
+    connectedSession.on('contactListUpdate', function() {
         var contactListArray : Array<any> = connectedSession.getOnlineContactsArray()
         contactListArray.forEach(onlineUser => {
             if (getLocalUser().getId() !== onlineUser.getId()) {
@@ -92,6 +93,7 @@ import ManageCookies from "./ManageCookies";
 
         callDeclineButton.addEventListener('click', () => {
             invitation.decline();
+            // @ts-ignore
             $(incomingModalElement).modal('hide');
         })
         
@@ -191,6 +193,7 @@ function addStreamInDiv(
     mediaElt.id = mediaEltId;
     mediaElt.autoplay = true;
     mediaElt.muted = muted;
+    //@ts-ignore
     mediaElt.playsInline = true;
     mediaElt.style.width = style.width;
     mediaElt.style.height = style.height;
@@ -242,6 +245,7 @@ function ensureModalVisible(modalId: string): void {
 
     const isHidden = !$(modalEl).hasClass('show');
     if (isHidden) {
+        // @ts-ignore
         $(modalEl).modal('show');
         console.log(`📺 Showing modal ${modalId} before attaching stream`);
     }
@@ -272,6 +276,7 @@ function clearContainers(): void {
 
         // If no cookies, return a new Promise
         return new Promise((resolve) => {
+            // @ts-ignore
             $("#useridentity").modal("show");
             
             saveCookieBtn.addEventListener('click', () => {
@@ -295,6 +300,7 @@ function clearContainers(): void {
                             secure: true,
                             sameSite: 'Lax'
                         });
+                        // @ts-ignore
                         $("#useridentity").modal("hide");
                         resolve([userName, email]);
                     } else {
@@ -321,114 +327,4 @@ function clearContainers(): void {
 //     console.error('CRITICAL ERROR: One or more required DOM elements are missing. Check IDs.');
 //     throw new Error('Initialization failed due to missing UI elements.');
 // }
-
-
-
-
-
-function _setCallListeners(call :any) :void {
-        call.on("localStreamAvailable", function (stream :any) {
-            console.log('localStreamAvailable');
-            console.log(stream);
-            
-            //document.getElementById('local-media').remove();
-            addStreamInDiv(stream, 'local-container', 'local-media-' + stream.getId(), {width : "160px", height : "120px"}, true);
-            stream
-                .on("stopped", function () { //When client receives an screenSharing call from another user
-                    console.error("Stream stopped");
-                    // $('#local-media-' + stream.getId()).remove();
-                });
-        })
-        .on("streamAdded", function (stream : any) {
-            console.log('stream :', stream);
-            addStreamInDiv(stream, 'remote-container', 'remote-media-' + stream.getId(), {width : "640px", height : "480px"}, false);
-        })
-        .on('streamRemoved', function (stream : any) {
-            // Remove media element
-            (document.getElementById('remote-media-' + stream.getId()) as HTMLMediaElement).remove();
-        })
-        .on('userMediaError', function (e:any) {
-            console.log('userMediaError detected : ', e);
-            console.log('userMediaError detected with error : ', e.error);
-
-            //Checking if tryAudioCallActivated
-            if (e.tryAudioCallActivated === false) {
-                $('#hangup-' + call.getId()).remove();
-            }
-        })
-        .on('desktopCapture', function (e : any ) {
-            console.log('desktopCapture event : ', e);
-            // $('#hangup-' + call.getId()).remove();
-        })
-        .on('hangup', function () {
-            // $('#hangup-' + call.getId()).remove();
-        });
-}
-
-
- function _addStreamInDiv(stream : any, divId : string, mediaEltId : string, style : object, muted : boolean) : void {
-        let mediaElt = null,
-            divElement = null,
-            funcFixIoS : any = null,
-            promise = null;
-
-          let mediaEltType = stream.hasVideo() ? "video" : "audio";
-            mediaElt = document.createElement(mediaEltType) as HTMLMediaElement;
-            
-
-        mediaElt.id = mediaEltId;
-        mediaElt.autoplay = true;
-        mediaElt.muted = muted;
-        mediaElt.style.width = style.width;
-        mediaElt.style.height = style.height;
-
-        funcFixIoS = function () {
-            var promise = mediaElt.play();
-            console.log('funcFixIoS');
-            if (promise !== undefined) {
-                promise.then(function () {
-                    // Autoplay started!
-                    console.log('Autoplay started');
-                    console.error('Audio is now activated');
-                    document.removeEventListener('touchstart', funcFixIoS);
-
-                    $('#status').empty().append('iOS / Safari : Audio is now activated');
-
-                }).catch(function (error : any) {
-                    // Autoplay was prevented.
-                    console.log("catche from a promise ", error);
-                    
-                    console.error('Autoplay was prevented');
-                });
-            }
-            document.removeEventListener('touchstart', funcFixIoS);
-        };
-
-        stream.attachToElement(mediaElt);
-        divElement = document.getElementById(divId) as HTMLDivElement;
-        divElement.appendChild(mediaElt);
-        promise = mediaElt.play();
-
-        if (promise !== undefined) {
-            promise.then(function () {
-                // Autoplay started!
-                console.log('Autoplay started');
-            }).catch(function (error) {
-                // Autoplay was prevented.
-                if (apiRTC.osName === "iOS") {
-                    console.info('iOS : Autoplay was prevented, activating touch event to start media play');
-                    //Show a UI element to let the user manually start playback
-
-                    //In our sample, we display a modal to inform user and use touchstart event to launch "play()"
-                    document.addEventListener('touchstart',  funcFixIoS);
-                    console.error('WARNING : Audio autoplay was prevented by iOS, touch screen to activate audio');
-                    $('#status').empty().append('WARNING : iOS / Safari : Audio autoplay was prevented by iOS, touch screen to activate audio');
-                } else {
-                    console.error('Autoplay was prevented');
-                }
-            });
-        }
-    }
-
-
 

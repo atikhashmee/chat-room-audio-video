@@ -1,12 +1,11 @@
 
 import { User } from './User';
-import { Users } from './Users';
 import { Conversation } from './Conversation';
 import { ChatMessage } from './ChatMessage';
 import { renderMessages } from './RenderMessages';
 import { conversationsMap } from './RenderMessages';
-import { getLocalUser, getActiveRecipient } from './RenderUser';
-import { sendBtn, msgInput, chatRecipientElement, audioCallBtn, videoCallBtn, chatBox, 
+import {  getActiveRecipient, getLocalUser } from './RenderUser';
+import {  msgInput, chatRecipientElement, chatBox, 
     incomingRingtone, outgoingRingtone, mainchatwrapper, defaultChatMessageBox, outgoingModalElement, incomingModalElement } 
     from "./DomElements";
 import $ from 'jquery'; 
@@ -59,7 +58,7 @@ export function simulateIncomingCall(callType: CallType, callerName: string): vo
     if (incomingModalElement) {
         // START AUDIO: Play incoming ringtone 
         // incomingRingtone.play().catch(e => console.error("Could not play incoming ringtone:", e));
-        
+        //@ts-ignore
         $(incomingModalElement).modal('show');
     }
 }
@@ -95,6 +94,7 @@ export function showOutgoingCall(callType: CallType, contact : any): void {
 
         var call = contact.call(null, callOptions);
         if (call !== null) {
+            // @ts-ignore
             $(outgoingModalElement).modal('show');
             // setCallListeners(call);
             // addHangupButton(call.getId());
@@ -123,7 +123,9 @@ export const stopRingtones = (): void => {
 export const handleKeypress = (e: KeyboardEvent): void => {
     if (e.key === 'Enter' && !msgInput.disabled) {
         e.preventDefault();
-        sendMessage();
+        console.log("Enter key pressed, sending message...");
+        const activeRecipient = getActiveRecipient();
+        sendMessage(activeRecipient, msgInput);
     }
 };
 
@@ -138,7 +140,7 @@ export const sendMessage = (activeRecipient: User | null, msgInput : HTMLInputEl
             const newMessage = ChatMessage.create(
                 (conversation.getMessages().length + 1).toString(), 
                 messageText, 
-                localUser, 
+                getLocalUser()!,
                 "text"
             );
             conversation.addMessage(newMessage);
