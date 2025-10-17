@@ -49,7 +49,7 @@ function renderDomFromUser(user: User): HTMLElement {
         listItem.setAttribute('data-user-id', user.getId());
     }
 
-    (node.querySelector(".username") as HTMLElement).innerText = user.getUsername();
+    (node.querySelector(".username") as HTMLElement).innerText = user.getName();
     (node.querySelector(".userid") as HTMLElement).innerHTML = user.getId();
     
     const statusDot = node.querySelector(".badge-dot") as HTMLSpanElement;

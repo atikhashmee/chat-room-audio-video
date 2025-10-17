@@ -16,6 +16,12 @@ const callAcceptButton = document.getElementById('callAcceptButton') as HTMLButt
 const callDeclineButton = document.getElementById('callDeclineButton') as HTMLButtonElement;
 
 
+//user identification modal elements
+const userNameInput = document.getElementById('username-input') as HTMLInputElement;
+const emailInput = document.getElementById('email-input') as HTMLInputElement;
+const saveCookieBtn = document.getElementById('save-cookie-btn') as HTMLButtonElement;
+
+
 export const incomingRingtone = createAudioPlayer('https://actions.google.com/sounds/v1/alarms/digital_watch_alarm.ogg', true);
 export const outgoingRingtone = createAudioPlayer('https://actions.google.com/sounds/v1/alarms/beep_short.ogg', true);
 
@@ -23,5 +29,5 @@ export { sendBtn, msgInput, chatRecipientElement, audioCallBtn,
     videoCallBtn, chatBox, outgoingModalElement, 
     incomingModalElement, mainchatwrapper, 
     defaultChatMessageBox,callAcceptButton
-    ,callDeclineButton
+    ,callDeclineButton, userNameInput, emailInput, saveCookieBtn
 }

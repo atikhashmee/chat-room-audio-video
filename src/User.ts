@@ -1,16 +1,18 @@
 class User {
     private id: string;
     private name : string;
+    private email : string;
     private username : string;
     private isOnline : boolean;
     private numberOfMessages: number;
     private totalMessages: string[];
     private avatarUrl: string;
 
-    constructor(id : string, name : string, username: string) {
+    constructor(id : string, name : string, username: string, email: string) {
         this.id = id;
         this.name = name
         this.username = username
+        this.email = email;
         this.isOnline = false
         this.numberOfMessages = 0;
         this.totalMessages = [];
@@ -26,7 +28,10 @@ class User {
     public getUsername() :string {
         return this.username; 
     }
-    public getIsonline() :boolean {
+    public getEmail() :string {
+        return this.email; 
+    }
+    public getIsOnline() :boolean {
         return this.isOnline; 
     }
 
