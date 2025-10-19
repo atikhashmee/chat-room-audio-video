@@ -20,7 +20,7 @@ function renderDomFromMessage(message: ChatMessage): HTMLElement {
     const timeColor = isSent ? '#E0E7FF' : '#6c757d';
 
     // 1. Clone the content of the template tag
-    const node = temp.content.cloneNode(true) as HTMLElement;
+    const node = temp.content.cloneNode(true) as DocumentFragment;
     const messageContainer = node.firstElementChild as HTMLDivElement;
     
     // 2. Apply justification class to the outer flex container
@@ -61,7 +61,7 @@ function renderDomFromMessage(message: ChatMessage): HTMLElement {
 }
 
 function renderMessages(conversation: Conversation): void {
-    const messageWrapper = document.querySelector("#chat-box");
+    const messageWrapper = document.querySelector("#messages-container");
     if (!messageWrapper) return;
     
     messageWrapper.innerHTML = ''; 
@@ -74,4 +74,12 @@ function renderMessages(conversation: Conversation): void {
     messageWrapper.scrollTop = messageWrapper.scrollHeight;
 }
 
-export { renderMessages, conversationsMap };
+function appendMessage(message: ChatMessage): void {
+    const container = document.querySelector("#messages-container");
+    if (!container) return;
+
+    container.appendChild(renderDomFromMessage(message));
+    container.scrollTop = container.scrollHeight;
+}
+
+export { renderMessages, conversationsMap, appendMessage };

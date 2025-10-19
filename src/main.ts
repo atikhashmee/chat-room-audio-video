@@ -9,18 +9,16 @@ import { sendBtn, audioCallBtn, videoCallBtn,
     
     callAcceptButton,
     callDeclineButton,
-    userNameInput,
-    emailInput,
-    saveCookieBtn
+   
+    hangupButton,
     } from "./DomElements";
 
 import { Conversation } from "./Conversation";
 import { User } from "./User";
 import { renderUser, setLocalUser, getLocalUser, addUser, getUserCollection, getActiveRecipient } from "./RenderUser";
-import { showOutgoingCall, simulateIncomingCall } from "./Helpers";
+import { showOutgoingCall, simulateIncomingCall, setCallListeners, addHangupButton, handleCookie } from "./Helpers";
 import { ChatMessage } from "./ChatMessage";
-import { renderMessages } from "./RenderMessages";
-import ManageCookies from "./ManageCookies";
+import { renderMessages, conversationsMap } from "./RenderMessages";
 
 
 (async function() {
@@ -59,10 +57,11 @@ import ManageCookies from "./ManageCookies";
         renderUser()
     })
     let conversation = new Conversation("connecting users");
-    conversation.addMessage(ChatMessage.create("1", "Hello, this is a test message!", new User("u1", "Alice", "Alice", "alice@example.com"), 'text'));
-    conversation.addMessage(ChatMessage.create("2", "Here's an image for you.", new User("u2", "Bob", "Bob", "bob@example.com"), 'image', { fileName: "image.png", fileSize: 204800, mimeType: "image/png" }));
-    conversation.addMessage(ChatMessage.create("3", "Please find the attached document.", new User("u1", "Alice", "Alice", "alice@example.com"), 'file', { fileName: "document.pdf", fileSize: 512000, mimeType: "application/pdf" }));
+    conversation.addMessage(ChatMessage.create("1", "Hello, this is a test message!", new User("atik/gmail.com", "Alice", "Alice", "alice@example.com"), 'text'));
+    conversation.addMessage(ChatMessage.create("2", "Here's an image for you.", new User("rafid/gmail.com", "Bob", "Bob", "bob@example.com"), 'image', { fileName: "image.png", fileSize: 204800, mimeType: "image/png" }));
+    conversation.addMessage(ChatMessage.create("3", "Please find the attached document.", new User("atik/gmail.com", "Alice", "Alice", "alice@example.com"), 'file', { fileName: "document.pdf", fileSize: 512000, mimeType: "application/pdf" }));
 
+    conversationsMap.set(conversation.getId(), conversation);
     renderMessages(conversation);
 
 
@@ -80,13 +79,13 @@ import ManageCookies from "./ManageCookies";
                         console.log("call got answered");
                         console.log(call);
                         setCallListeners(call)
-                        // addHangupButton(call.getId());
+                        addHangupButton(call.getId());
                     });
             } else { 
                 invitation.accept() //Answering with audio and video.
                 .then(function (call : any) {
                     setCallListeners(call);
-                    // addHangupButton(call.getId());
+                    addHangupButton(call.getId());
                 });
             }
         });
@@ -111,6 +110,13 @@ import ManageCookies from "./ManageCookies";
         showOutgoingCall('Video', contact)
     });
 
+    hangupButton.addEventListener("click", (event) => {
+        const callId = (event.currentTarget as HTMLElement).getAttribute('data-callid');
+        console.log("hangupCall :", callId);
+        var call = connectedSession.getCall(callId);
+        call.hangUp();
+    })
+
 
     sendBtn.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -122,209 +128,8 @@ import ManageCookies from "./ManageCookies";
         }
     });
 
-// === ApiRTC Call Event Listener Setup ===
-function setCallListeners(call: any): void {
-    console.log('Setting call listeners for call:', call.getId());
-
-    call
-        // When local stream (camera/mic) is ready
-        .on("localStreamAvailable", (stream: any) => {
-            console.log('🟢 Local stream available:', stream.getId());
-            ensureModalVisible('#incomingCallModal');
-
-            addStreamInDiv(
-                stream,
-                'local-container',
-                `local-media-${stream.getId()}`,
-                { width: "160px", height: "120px" },
-                true // muted for local
-            );
-        })
-
-        // When remote stream (the other user) arrives
-        .on("streamAdded", (stream: any) => {
-            console.log('🟢 Remote stream added:', stream.getId());
-            ensureModalVisible('#incomingCallModal');
-
-            addStreamInDiv(
-                stream,
-                'remote-container',
-                `remote-media-${stream.getId()}`,
-                { width: "640px", height: "480px" },
-                false // not muted for remote
-            );
-        })
-
-        // When a remote stream stops (user hangs up)
-        .on("streamRemoved", (stream: any) => {
-            console.log('🔴 Remote stream removed:', stream.getId());
-            const el = document.getElementById(`remote-media-${stream.getId()}`);
-            if (el) el.remove();
-        })
-
-        // Media permission or device error
-        .on("userMediaError", (e: any) => {
-            console.error('⚠️ userMediaError:', e.error || e);
-        })
-
-        // When the call ends
-        .on("hangup", () => {
-            console.log('📞 Call ended:', call.getId());
-            clearContainers();
-        });
-}
-
-
-
-// === Stream Renderer (Audio/Video) ===
-function addStreamInDiv(
-    stream: any,
-    divId: string,
-    mediaEltId: string,
-    style: { width: string; height: string },
-    muted: boolean
-): void {
-    const hasVideo: boolean = stream.hasVideo();
-    const mediaType: "audio" | "video" = hasVideo ? "video" : "audio";
-
-    console.log(`🎥 Attaching ${mediaType} stream (${stream.getId()}) to #${divId}`);
-
-    const mediaElt: HTMLMediaElement = document.createElement(mediaType);
-    mediaElt.id = mediaEltId;
-    mediaElt.autoplay = true;
-    mediaElt.muted = muted;
-    //@ts-ignore
-    mediaElt.playsInline = true;
-    mediaElt.style.width = style.width;
-    mediaElt.style.height = style.height;
-    mediaElt.style.borderRadius = "8px";
-    mediaElt.style.objectFit = "cover";
-    mediaElt.style.background = "#000";
-
-    const divElement = document.getElementById(divId) as HTMLDivElement | null;
-    if (!divElement) {
-        console.error(`❌ Container #${divId} not found. Skipping stream attachment.`);
-        return;
-    }
-
-    // If a media element with the same ID exists, remove it before adding new one
-    const existing = document.getElementById(mediaEltId);
-    if (existing) existing.remove();
-
-    // Attach stream
-    stream.attachToElement(mediaElt);
-    divElement.appendChild(mediaElt);
-
-    // Attempt to autoplay
-    const playPromise = mediaElt.play();
-    if (playPromise !== undefined) {
-        playPromise
-            .then(() => {
-                console.log(`✅ Autoplay started for ${mediaType} (${stream.getId()})`);
-            })
-            .catch((err: any) => {
-                console.warn(`⚠️ Autoplay prevented for ${mediaType}:`, err);
-                if ((window as any).apiRTC?.osName === "iOS") {
-                    console.info("ℹ️ Enabling touch-to-start for iOS Safari");
-                    document.addEventListener(
-                        "touchstart",
-                        () => mediaElt.play(),
-                        { once: true }
-                    );
-                }
-            });
-    }
-}
-
-
-
-// === Utility: Ensure modal visible before attaching streams ===
-function ensureModalVisible(modalId: string): void {
-    const modalEl = document.querySelector(modalId);
-    if (!modalEl) return;
-
-    const isHidden = !$(modalEl).hasClass('show');
-    if (isHidden) {
-        // @ts-ignore
-        $(modalEl).modal('show');
-        console.log(`📺 Showing modal ${modalId} before attaching stream`);
-    }
-}
-
-
-
-// === Utility: Cleanup after hangup ===
-function clearContainers(): void {
-    const containers = ['local-container', 'remote-container'];
-    containers.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.innerHTML = '';
-    });
-    console.log('🧹 Cleared all media containers');
-}
-
-    async function handleCookie() : Promise<[string, string]> {
-        const userNameCookieName = "userName";
-        const emailCookieName = "email";
-
-        if (ManageCookies.hasCookie(userNameCookieName) && 
-            ManageCookies.hasCookie(emailCookieName)) {
-            const userName = ManageCookies.getCookie(userNameCookieName)!;
-            const email = ManageCookies.getCookie(emailCookieName)!;
-            return [userName, email];
-        }
-
-        // If no cookies, return a new Promise
-        return new Promise((resolve) => {
-            // @ts-ignore
-            $("#useridentity").modal("show");
-            
-            saveCookieBtn.addEventListener('click', () => {
-                saveCookieBtn.querySelector('.spinner-border')?.classList.remove('d-none');
-                saveCookieBtn.setAttribute('disabled', 'true');
-                
-                setTimeout(() => {
-                    const userName = userNameInput.value.trim();
-                    const email = emailInput.value.trim();
-                    
-                    if (userName && email) {
-                        ManageCookies.setCookie('userName', userName, {
-                            path: '/',
-                            maxAge: 3600,
-                            secure: true,
-                            sameSite: 'Lax'
-                        });
-                        ManageCookies.setCookie('email', email, {
-                            path: '/',
-                            maxAge: 3600,
-                            secure: true,
-                            sameSite: 'Lax'
-                        });
-                        // @ts-ignore
-                        $("#useridentity").modal("hide");
-                        resolve([userName, email]);
-                    } else {
-                        alert("Please enter both a username and an email.");
-                    }
-                }, 2000);
-            });
-        });
-    }
-
-
-
 })();
 
 
 
-
-
-
-
-
-// Safety check for critical elements 
-// if (!sendBtn || !msgInput || !chatRecipientElement || !audioCallBtn || !videoCallBtn || !chatBox) {
-//     console.error('CRITICAL ERROR: One or more required DOM elements are missing. Check IDs.');
-//     throw new Error('Initialization failed due to missing UI elements.');
-// }
 

@@ -11,9 +11,11 @@ const mainchatwrapper = document.getElementById('visible-main-chat-wrapper') as 
 const defaultChatMessageBox = document.getElementById('defaultChatMessageBox') as HTMLDivElement;
 const outgoingModalElement = document.getElementById('outgoingCallModal');
 const incomingModalElement = document.getElementById('incomingCallModal') as HTMLDialogElement;
+const activeModalElement = document.getElementById('activeCallModal') as HTMLDialogElement;
 
 const callAcceptButton = document.getElementById('callAcceptButton') as HTMLButtonElement;
 const callDeclineButton = document.getElementById('callDeclineButton') as HTMLButtonElement;
+const hangupButton = document.getElementById('hangupButton') as HTMLButtonElement;
 
 
 //user identification modal elements
@@ -29,5 +31,7 @@ export { sendBtn, msgInput, chatRecipientElement, audioCallBtn,
     videoCallBtn, chatBox, outgoingModalElement, 
     incomingModalElement, mainchatwrapper, 
     defaultChatMessageBox,callAcceptButton
-    ,callDeclineButton, userNameInput, emailInput, saveCookieBtn
+    ,callDeclineButton, userNameInput, emailInput, saveCookieBtn,
+    activeModalElement,
+    hangupButton
 }
