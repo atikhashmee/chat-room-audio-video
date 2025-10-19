@@ -201,8 +201,11 @@ export function setCallListeners(call: any): void {
         .on("accepted", () => {
             console.log("call accepted", call.getId());
             
+            // @ts-ignore
             $('#outgoingCallModal').modal("hide")
+            // @ts-ignore
             $('#incomingCallModal').modal("hide")
+            // @ts-ignore
             $('#activeCallModal').modal("show")
         })
         .on("streamRemoved", (stream: any) => {
@@ -216,11 +219,14 @@ export function setCallListeners(call: any): void {
         .on("hangup", () => {
             console.log('📞 Call ended:', call.getId());
             clearContainers();
+            // @ts-ignore
             $('#outgoingCallModal').modal("hide")
+            // @ts-ignore
             $('#incomingCallModal').modal("hide")
+            // @ts-ignore
             $('#activeCallModal').modal("hide")
         })
-        .on("declined", (reason)=> {
+        .on("declined", (reason: any) => {
             clearContainers();
             console.log("decline call id", call.getId());
             console.log("call was decline", reason);
