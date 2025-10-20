@@ -5,7 +5,7 @@ import { ChatMessage } from './ChatMessage';
 import { renderMessages } from './RenderMessages';
 import { conversationsMap } from './RenderMessages';
 import {  getActiveRecipient, getLocalUser } from './RenderUser';
-import {  msgInput, chatRecipientElement, chatBox, 
+import {  msgInput, chatRecipientElement, messagesContainer, 
     incomingRingtone, outgoingRingtone, mainchatwrapper, defaultChatMessageBox, outgoingModalElement, incomingModalElement, hangupButton, 
      userNameInput,
     emailInput,
@@ -18,7 +18,7 @@ import ManageCookies from "./ManageCookies";
 type CallType = 'Audio' | 'Video';
 
 
-export function renderActiveReceipient(): void {
+export function renderActiveReceipient(shouldReload: boolean = true): void {
     const activeRecipient = getActiveRecipient();
     if (activeRecipient === null) {
         defaultChatMessageBox.classList.remove('d-none')
@@ -28,8 +28,11 @@ export function renderActiveReceipient(): void {
     defaultChatMessageBox.classList.add('d-none')
     mainchatwrapper.classList.remove('d-none')
 
+    if (!shouldReload) return;
+
     let newRecipient = activeRecipient
-    chatBox.innerHTML = `
+
+    messagesContainer.innerHTML = `
         <div class="d-flex flex-column justify-content-center align-items-center h-100 p-5">
             <div class="text-center">
                 <div class="spinner-border text-indigo" role="status">
@@ -48,6 +51,7 @@ export function renderActiveReceipient(): void {
         } else {
             renderMessages(new Conversation(""));
         }
+        messagesContainer.innerHTML = ''
     }, 200);
 }
 
@@ -177,7 +181,10 @@ export function setCallListeners(call: any): void {
         .on("localStreamAvailable", (stream: any) => {
             console.log('🟢 Local stream available:', stream.getId());
             ensureModalVisible('#activeCallModal');
-
+            console.log("digging local stream");
+            console.log(stream.hasVideo(), stream);
+            
+            
             addStreamInDiv(
                 stream,
                 'local-container',
@@ -236,16 +243,18 @@ export function setCallListeners(call: any): void {
 
 
 export function addStreamInDiv(stream: any, divId: string, mediaEltId: string, style: { width: string; height: string }, muted: boolean): void {
-    const hasVideo: boolean = stream.hasVideo();
+    // ✅ Robust detection for whether the stream has video
+    const hasVideo = typeof stream.hasVideo === "function" ? stream.hasVideo() : stream.getVideoTracks && stream.getVideoTracks().length > 0;
     const mediaType: "audio" | "video" = hasVideo ? "video" : "audio";
+    const streamId = stream.getId ? stream.getId() : "local";
+    console.log(`🎥 Attaching ${mediaType} stream (${streamId}) → #${divId}`);
 
-    console.log(`🎥 Attaching ${mediaType} stream (${stream.getId()}) to #${divId}`);
-
+    // 🎬 Create media element
     const mediaElt: HTMLMediaElement = document.createElement(mediaType);
     mediaElt.id = mediaEltId;
     mediaElt.autoplay = true;
     mediaElt.muted = muted;
-    //@ts-ignore
+    // @ts-ignore
     mediaElt.playsInline = true;
     mediaElt.style.width = style.width;
     mediaElt.style.height = style.height;
@@ -253,29 +262,44 @@ export function addStreamInDiv(stream: any, divId: string, mediaEltId: string, s
     mediaElt.style.objectFit = "cover";
     mediaElt.style.background = "#000";
 
+    // 🧩 Find target container
     const divElement = document.getElementById(divId) as HTMLDivElement | null;
     if (!divElement) {
         console.error(`❌ Container #${divId} not found. Skipping stream attachment.`);
         return;
     }
 
-    // If a media element with the same ID exists, remove it before adding new one
+    // 🔄 Replace any existing media with the same ID
     const existing = document.getElementById(mediaEltId);
     if (existing) existing.remove();
 
-    // Attach stream
-    stream.attachToElement(mediaElt);
+    // 🔗 Attach the stream correctly depending on its type
+    try {
+        if (typeof stream.attachToElement === "function") {
+            stream.attachToElement(mediaElt); // apiRTC Stream
+        } else if (mediaElt instanceof HTMLMediaElement && stream instanceof MediaStream) {
+            mediaElt.srcObject = stream; // Native WebRTC MediaStream
+        } else {
+            console.warn("⚠️ Unknown stream type, skipping attach:", stream);
+        }
+    } catch (err) {
+        console.error("❌ Failed to attach stream:", err);
+        return;
+    }
+
+    // 🧱 Append to DOM
     divElement.appendChild(mediaElt);
 
-    // Attempt to autoplay
+    // ▶️ Try to autoplay
     const playPromise = mediaElt.play();
     if (playPromise !== undefined) {
         playPromise
             .then(() => {
-                console.log(`✅ Autoplay started for ${mediaType} (${stream.getId()})`);
+                console.log(`✅ Autoplay started for ${mediaType} (${streamId})`);
             })
             .catch((err: any) => {
-                console.warn(`⚠️ Autoplay prevented for ${mediaType}:`, err);
+                console.warn(`⚠️ Autoplay prevented for ${mediaType} (${streamId}):`, err);
+                // 🧩 Fix for iOS Safari touch-start requirement
                 if ((window as any).apiRTC?.osName === "iOS") {
                     console.info("ℹ️ Enabling touch-to-start for iOS Safari");
                     document.addEventListener(
@@ -286,7 +310,13 @@ export function addStreamInDiv(stream: any, divId: string, mediaEltId: string, s
                 }
             });
     }
+
+    // 🚨 Warn if no video track found
+    if (!hasVideo) {
+        console.warn(`⚠️ Stream ${streamId} has no video tracks.`);
+    }
 }
+
 
 export function ensureModalVisible(modalId: string): void {
     const modalEl = document.querySelector(modalId);

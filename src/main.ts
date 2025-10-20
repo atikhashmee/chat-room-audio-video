@@ -4,22 +4,12 @@ import "bootstrap";
 import "./style.css";
 import $ from 'jquery'; 
 
-import { sendBtn, audioCallBtn, videoCallBtn,
-    incomingModalElement,
-    
-    callAcceptButton,
-    callDeclineButton,
-   
-    hangupButton,
-    } from "./DomElements";
-
-import { Conversation } from "./Conversation";
+import { sendBtn, audioCallBtn, videoCallBtn, incomingModalElement, callAcceptButton, callDeclineButton, hangupButton,} from "./DomElements";
 import { User } from "./User";
-import { renderUser, setLocalUser, getLocalUser, addUser, getUserCollection, getActiveRecipient } from "./RenderUser";
+import { renderUser, setLocalUser, getLocalUser, addUser, getUserCollection, getActiveRecipient, userSelectedForChat } from "./RenderUser";
 import { showOutgoingCall, simulateIncomingCall, setCallListeners, addHangupButton, handleCookie } from "./Helpers";
 import { ChatMessage } from "./ChatMessage";
-import { renderMessages, conversationsMap } from "./RenderMessages";
-
+import { appendMessage } from "./RenderMessages";
 
 (async function() {
     const [userName, email] = await handleCookie();
@@ -56,13 +46,15 @@ import { renderMessages, conversationsMap } from "./RenderMessages";
         });
         renderUser()
     })
-    let conversation = new Conversation("connecting users");
-    conversation.addMessage(ChatMessage.create("1", "Hello, this is a test message!", new User("atik/gmail.com", "Alice", "Alice", "alice@example.com"), 'text'));
-    conversation.addMessage(ChatMessage.create("2", "Here's an image for you.", new User("rafid/gmail.com", "Bob", "Bob", "bob@example.com"), 'image', { fileName: "image.png", fileSize: 204800, mimeType: "image/png" }));
-    conversation.addMessage(ChatMessage.create("3", "Please find the attached document.", new User("atik/gmail.com", "Alice", "Alice", "alice@example.com"), 'file', { fileName: "document.pdf", fileSize: 512000, mimeType: "application/pdf" }));
+    //for dummy text based simulation
+    // let conversation = new Conversation("connecting users");
+    // conversation.addMessage(ChatMessage.create("1", "Hello, this is a test message!", new User("atik/gmail.com", "Alice", "Alice", "alice@example.com"), 'text'));
+    // conversation.addMessage(ChatMessage.create("2", "Here's an image for you.", new User("rafid/gmail.com", "Bob", "Bob", "bob@example.com"), 'image', { fileName: "image.png", fileSize: 204800, mimeType: "image/png" }));
+    // conversation.addMessage(ChatMessage.create("3", "Please find the attached document.", new User("atik/gmail.com", "Alice", "Alice", "alice@example.com"), 'file', { fileName: "document.pdf", fileSize: 512000, mimeType: "application/pdf" }));
 
-    conversationsMap.set(conversation.getId(), conversation);
-    renderMessages(conversation);
+    // conversationsMap.set(conversation.getId(), conversation);
+    // renderMessages(conversation);
+    //end of dummy text based simulation
 
 
     connectedSession.on('incomingCall', function (invitation : any) {
@@ -100,6 +92,12 @@ import { renderMessages, conversationsMap } from "./RenderMessages";
         //document.getElementById('hangup').style.display = 'inline-block';
     })
 
+    connectedSession.on("contactMessage", (e: any)=> {
+        let user: User  = getUserCollection().get(e.sender.getId())!
+        userSelectedForChat(user, false)
+        appendMessage(ChatMessage.create(e.uuid, e.content, user, "text"))
+    })
+
 
     audioCallBtn.addEventListener('click', () => {
         const contact = connectedSession.getOrCreateContact(getActiveRecipient()?.getId())
@@ -123,8 +121,9 @@ import { renderMessages, conversationsMap } from "./RenderMessages";
         const msgInput = document.getElementById('msgInput') as HTMLInputElement;
         const message = msgInput.value.trim();
         if (message) {
-            console.log(message);
             msgInput.value = '';
+            appendMessage(ChatMessage.create("id", message, getLocalUser(), "text"))
+            connectedSession.getOrCreateContact(getActiveRecipient()?.getId()).sendMessage(message)
         }
     });
 

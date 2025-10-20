@@ -7,6 +7,7 @@ const chatRecipientElement = document.getElementById('chat-recipient') as HTMLEl
 const audioCallBtn = document.getElementById('audioCallBtn') as HTMLButtonElement;
 const videoCallBtn = document.getElementById('videoCallBtn') as HTMLButtonElement;
 const chatBox = document.getElementById('chat-box') as HTMLDivElement;
+const messagesContainer = document.getElementById('messages-container') as HTMLDivElement;
 const mainchatwrapper = document.getElementById('visible-main-chat-wrapper') as HTMLDivElement;
 const defaultChatMessageBox = document.getElementById('defaultChatMessageBox') as HTMLDivElement;
 const outgoingModalElement = document.getElementById('outgoingCallModal');
@@ -33,5 +34,6 @@ export { sendBtn, msgInput, chatRecipientElement, audioCallBtn,
     defaultChatMessageBox,callAcceptButton
     ,callDeclineButton, userNameInput, emailInput, saveCookieBtn,
     activeModalElement,
-    hangupButton
+    hangupButton,
+    messagesContainer
 }

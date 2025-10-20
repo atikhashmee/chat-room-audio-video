@@ -2,6 +2,7 @@ import { ChatMessage } from "./ChatMessage";
 import { Conversation } from "./Conversation";
 
 import { getLocalUser } from "./RenderUser"
+import {messagesContainer as messageWrapper} from "./DomElements"
 
 
 const conversationsMap = new Map<string, Conversation>();
@@ -61,25 +62,16 @@ function renderDomFromMessage(message: ChatMessage): HTMLElement {
 }
 
 function renderMessages(conversation: Conversation): void {
-    const messageWrapper = document.querySelector("#messages-container");
-    if (!messageWrapper) return;
-    
     messageWrapper.innerHTML = ''; 
-    
     conversation.getMessages().forEach(message => {
         messageWrapper.appendChild(renderDomFromMessage(message));
     });
-
-    // Scroll to bottom
     messageWrapper.scrollTop = messageWrapper.scrollHeight;
 }
 
 function appendMessage(message: ChatMessage): void {
-    const container = document.querySelector("#messages-container");
-    if (!container) return;
-
-    container.appendChild(renderDomFromMessage(message));
-    container.scrollTop = container.scrollHeight;
+    messageWrapper.appendChild(renderDomFromMessage(message));
+    messageWrapper.scrollTop = messageWrapper.scrollHeight;
 }
 
 export { renderMessages, conversationsMap, appendMessage };

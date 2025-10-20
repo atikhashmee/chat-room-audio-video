@@ -1,37 +1,158 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            overflow: hidden; /* Prevent body scroll */
-            background-color: #f8f9fa; /* Match Bootstrap body bg */
-        }
-        
-        /* Custom Colors to match Tailwind's Indigo look */
-        :root {
-            --indigo: #4F46E5; /* primary-blue equivalent */
-            --chat-bg: #F7F9FB; /* chat-bg equivalent */
-            --lg-radius: 0.75rem;
-        }
-        .bg-indigo { background-color: var(--indigo) !important; }
-        .text-indigo { color: var(--indigo) !important; }
-        .bg-chat-bg { background-color: var(--chat-bg) !important; }
-        .rounded-lg { border-radius: var(--lg-radius) !important; }
-        .rounded-t-0 { border-top-left-radius: 0 !important; }
-        .rounded-b-0 { border-bottom-right-radius: 0 !important; }
-        .shadow-custom { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06); }
 
-        /* Custom scrollbar styles */
-        #user-list::-webkit-scrollbar, #chat-box::-webkit-scrollbar { width: 8px; }
-        #user-list::-webkit-scrollbar-thumb, #chat-box::-webkit-scrollbar-thumb {
-            background-color: #adb5bd; /* gray */
-            border-radius: 4px;
-        }
-        #user-list::-webkit-scrollbar-track, #chat-box::-webkit-scrollbar-track {
-            background: #e9ecef; /* light gray */
-        }
-        #user-list, #chat-box { overflow-y: auto; }
+body {
+	font-family: 'Inter', sans-serif;
+	overflow: hidden;
+	/* Prevent body scroll */
+	background-color: #f8f9fa;
+	/* Match Bootstrap body bg */
+}
 
-        /* Custom spinner for call modals */
-        .spinner-border.text-indigo {
-            border-color: var(--indigo);
-            border-right-color: transparent;
-        }
+/* Custom Colors to match Tailwind's Indigo look */
+:root {
+	--indigo: #4F46E5;
+	/* primary-blue equivalent */
+	--chat-bg: #F7F9FB;
+	/* chat-bg equivalent */
+	--lg-radius: 0.75rem;
+}
+
+.bg-indigo {
+	background-color: var(--indigo) !important;
+}
+
+.text-indigo {
+	color: var(--indigo) !important;
+}
+
+.bg-chat-bg {
+	background-color: var(--chat-bg) !important;
+}
+
+.rounded-lg {
+	border-radius: var(--lg-radius) !important;
+}
+
+.rounded-t-0 {
+	border-top-left-radius: 0 !important;
+}
+
+.rounded-b-0 {
+	border-bottom-right-radius: 0 !important;
+}
+
+.shadow-custom {
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
+}
+
+/* Custom scrollbar styles */
+#user-list::-webkit-scrollbar,
+#chat-box::-webkit-scrollbar {
+	width: 8px;
+}
+
+#user-list::-webkit-scrollbar-thumb,
+#chat-box::-webkit-scrollbar-thumb {
+	background-color: #adb5bd;
+	/* gray */
+	border-radius: 4px;
+}
+
+#user-list::-webkit-scrollbar-track,
+#chat-box::-webkit-scrollbar-track {
+	background: #e9ecef;
+	/* light gray */
+}
+
+#user-list,
+#chat-box {
+	overflow-y: auto;
+}
+
+/* Custom spinner for call modals */
+.spinner-border.text-indigo {
+	border-color: var(--indigo);
+	border-right-color: transparent;
+}
+
+
+#chat-box {
+	min-height: 0;
+	/* Ensures proper flex shrinking */
+}
+
+#messages-container {
+	padding-bottom: 1rem;
+	/* Keeps space above input bar */
+}
+
+#chat-box::-webkit-scrollbar {
+	width: 8px;
+}
+
+#chat-box::-webkit-scrollbar-thumb {
+	background-color: #adb5bd;
+	border-radius: 4px;
+}
+
+#chat-box::-webkit-scrollbar-track {
+	background: #e9ecef;
+}
+
+
+html,
+body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+/* Ensure full height layout */
+#visible-main-chat-wrapper {
+	display: flex;
+	flex-direction: column;
+	height: 100vh;
+}
+
+/* Maintain column layout for chat */
+#visible-main-chat-wrapper>.d-flex {
+	flex-direction: column;
+	height: 100%;
+}
+
+/* Scrollable message area */
+#chat-box {
+	overflow-y: auto;
+	flex-grow: 1;
+}
+
+/* Input bar always visible */
+#chat-input-bar {
+	position: sticky;
+	bottom: 0;
+	background: #fff;
+	z-index: 1000;
+}
+
+/* Optional: custom scrollbar styling */
+#chat-box::-webkit-scrollbar {
+	width: 6px;
+}
+
+#chat-box::-webkit-scrollbar-thumb {
+	background: #cbd5e1;
+	border-radius: 3px;
+}
+
+/* Optional: color helpers */
+.bg-indigo {
+	background-color: #4f46e5 !important;
+}
+
+.shadow-custom {
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.space-y-4>*+* {
+	margin-top: 1rem !important;
+}

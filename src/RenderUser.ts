@@ -87,8 +87,12 @@ function selectUserForChat(event: any) {
     let selectedUserDom = event.currentTarget; 
     let selectUserId = selectedUserDom.dataset.userId;
     let user: User  = getUserCollection().get(selectUserId)!
-    setActiveRecipient(user)
-    renderActiveReceipient()
+    userSelectedForChat(user)
 }
 
-export { renderUser, addUser, setLocalUser, getLocalUser, getUserCollection, setUserCollection, setActiveRecipient, getActiveRecipient };
+function userSelectedForChat(user : User, shouldReload: boolean = true) : void {
+    setActiveRecipient(user)
+    renderActiveReceipient(shouldReload)
+}
+
+export { renderUser, addUser, setLocalUser, getLocalUser, getUserCollection, setUserCollection, setActiveRecipient, getActiveRecipient, userSelectedForChat };
